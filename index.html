@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find the Difference Gallery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    /* Translator container */
+    #translate-container {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    header p {
+      font-size: 1.2rem;
+    }
+    /* Gallery styles */
+    .gallery {
+      text-align: center;
+      margin: 20px auto;
+    }
+    .gallery-item {
+      display: inline-block;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 10px;
+      /* The container will size itself to the image below */
+    }
+    .gallery-item img {
+      display: block;
+      /* Force a small size by setting a fixed width */
+      width: 150px;
+      height: auto;
+    }
+    .caption {
+      font-size: 14px;
+      padding: 5px;
+      background: #fafafa;
+      white-space: nowrap;
+    }
+    footer {
+      font-size: 0.9rem;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      color: #555;
+    }
+    footer a {
+      color: #0073e6;
+      text-decoration: none;
+    }
+    /* Modal styles (unchanged) */
+    .modal {
+      display: none; 
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      border-radius: 5px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .close-btn {
+      background-color: #0073e6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+  </style>
+  <!-- Google Translate widget snippet -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', 
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        includedLanguages: 'en,ru,es,fr,de,zh-CN,ja,ko'
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div id="translate-container">
+        <div id="google_translate_element"></div>
+      </div>
+      <h1>Find the Difference Gallery</h1>
+      <p>Click on an image below to download the corresponding puzzle ZIP file.</p>
+    </header>
+
+    <div class="gallery">
+      <!-- Notice the container will shrink to the fixed 150px image size -->
+      <div class="gallery-item">
+        <a href="zips/puzzle1.zip" download data-differences="29">
+          <img src="imgs/puz1.jpg" alt="Puzzle 1 Original">
+          <div class="caption">Russia</div>
+        </a>
+      </div>
+      <!-- Additional items can be added similarly -->
+    </div>
+
+    <footer>
+      <p>
+        If you are the owner of any image on this site and do not wish it to appear,
+        please email us at <a href="mailto:remove@your-site.com">remove@your-site.com</a>.
+      </p>
+      <p>&copy; 2025 Your Site Name. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- Modal Structure -->
+  <div id="differenceModal" class="modal">
+    <div class="modal-content">
+      <p id="modalMessage"></p>
+      <button id="closeModal" class="close-btn">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Global variable to store the current download URL
+    var currentZipUrl = "";
+    // Function to trigger a download using a temporary anchor element.
+    function triggerDownload(url) {
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = url.split('/').pop();
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    // Function to close modal and then trigger the download
+    function closeModalAndDownload() {
+      document.getElementById('differenceModal').style.display = "none";
+      triggerDownload(currentZipUrl);
+    }
+    // Attach click event listener to gallery links
+    document.querySelectorAll('.gallery-item a').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        currentZipUrl = this.getAttribute('href');
+        var differences = this.getAttribute('data-differences');
+        document.getElementById('modalMessage').textContent = "This puzzle has " + differences + " differences. Your download will begin shortly.";
+        var modal = document.getElementById('differenceModal');
+        modal.style.display = "block";
+        var autoCloseTimer = setTimeout(function() {
+          closeModalAndDownload();
+        }, 10000);
+        document.getElementById('closeModal').onclick = function() {
+          clearTimeout(autoCloseTimer);
+          closeModalAndDownload();
+        };
+      });
+    });
+    // Optional: Close modal if clicking outside the modal content
+    window.onclick = function(event) {
+      var modal = document.getElementById('differenceModal');
+      if (event.target === modal) {
+        closeModalAndDownload();
+      }
+    };
+  </script>
+</body>
+</html>
