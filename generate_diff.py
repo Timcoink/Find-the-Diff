@@ -174,9 +174,9 @@ def main():
     
     message_text = (
         "Thank you for using our Find the Difference puzzles!\n\n"
-        "Visit https://www.your-site.com for more challenges and fun puzzles.\n\n"
+        "Visit https://findthediff.ddnsfree.com for more challenges and fun puzzles.\n\n"
         "If you are the owner of any image on this site and do not wish it to appear, "
-        "please contact us at remove@your-site.com.\n\n"
+        "please contact us at findthediff-main@iname.com.\n\n"
         "Have a great day and keep exploring!"
     )
     with open(message_filename, 'w', encoding='utf-8') as f:
