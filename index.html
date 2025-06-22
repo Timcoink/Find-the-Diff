@@ -10,187 +10,227 @@
       background-color: #f4f4f4;
       margin: 0;
       padding: 20px;
+      text-align: center;
       color: #333;
-      text-align: center;
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    header {
+    /* Top Banner Styles */
+    .top-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0073e6;
+      padding: 10px 20px;
       margin-bottom: 20px;
-      position: relative;
     }
-    /* Translator container */
-    #translate-container {
-      position: absolute;
-      right: 10px;
-      top: 10px;
+    .top-banner a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
     }
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
+    .top-banner a.active {
+      text-decoration: underline;
     }
-    header p {
-      font-size: 1.2rem;
+    h1 {
+      margin-top: 0;
     }
-    /* Gallery styles */
     .gallery {
-      text-align: center;
-      margin: 20px auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
     }
     .gallery-item {
-      display: inline-block;
+      text-decoration: none;
+      color: inherit;
       border: 1px solid #ddd;
       border-radius: 5px;
       overflow: hidden;
-      margin: 10px;
-      /* The container will size itself to the image below */
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .gallery-item:hover {
+      transform: scale(1.03);
     }
     .gallery-item img {
       display: block;
-      /* Force a small size by setting a fixed width */
       width: 150px;
       height: auto;
     }
     .caption {
-      font-size: 14px;
       padding: 5px;
+      font-size: 14px;
       background: #fafafa;
       white-space: nowrap;
     }
     footer {
+      margin-top: 40px;
       font-size: 0.9rem;
-      padding-top: 20px;
       border-top: 1px solid #ddd;
+      padding-top: 10px;
       color: #555;
     }
     footer a {
       color: #0073e6;
       text-decoration: none;
     }
-    /* Modal styles (unchanged) */
+    /* Modal Overlay */
     .modal {
-      display: none; 
+      display: none;
       position: fixed;
       z-index: 1000;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.4);
+      background-color: rgba(0, 0, 0, 0.5);
     }
     .modal-content {
+      position: relative;
       background-color: #fff;
-      margin: 15% auto;
+      margin: 10% auto;
       padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
+      width: 90%;
       max-width: 400px;
-      text-align: center;
       border-radius: 5px;
+      text-align: center;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-    .close-btn {
-      background-color: #0073e6;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      border-radius: 3px;
+    .modal-content h2 {
+      margin-top: 0;
+    }
+    .modal-btns {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .modal-btns button {
+      padding: 10px 15px;
       font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+    }
+    .download-btn {
+      background-color: #28a745;
+      color: #fff;
+    }
+    .view-btn {
+      background-color: #0073e6;
+      color: #fff;
+    }
+    .close-modal {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #aaa;
+    }
+    .close-modal:hover {
+      color: #000;
     }
   </style>
-  <!-- Google Translate widget snippet -->
-  <script type="text/javascript">
-    function googleTranslateElementInit() {
-      new google.translate.TranslateElement({
-        pageLanguage: 'en', 
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        includedLanguages: 'en,ru,es,fr,de,zh-CN,ja,ko'
-      }, 'google_translate_element');
-    }
-  </script>
-  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div id="translate-container">
-        <div id="google_translate_element"></div>
-      </div>
-      <h1>Find the Difference Gallery</h1>
-      <p>Click on an image below to download the corresponding puzzle ZIP file.</p>
-    </header>
-
-    <div class="gallery">
-      <!-- Notice the container will shrink to the fixed 150px image size -->
-      <div class="gallery-item">
-        <a href="zips/puzzle1.zip" download data-differences="29">
-          <img src="imgs/puz1.jpg" alt="Puzzle 1 Original">
-          <div class="caption">Russia</div>
-        </a>
-      </div>
-      <!-- Additional items can be added similarly -->
-    </div>
-
-    <footer>
-      <p>
-        If you are the owner of any image on this site and do not wish it to appear,
-        please email us at <a href="mailto:findthediff-main@iname.com">findthediff-main@iname.com</a>.
-      </p>
-      <p>&copy; 2025 findthediff.ddnsfree.com. All rights reserved.</p>
-    </footer>
+  <!-- Top Navigation Banner -->
+  <div class="top-banner">
+    <a href="/gallery" class="active">Gallery</a>
+    <a href="/view">View</a>
   </div>
 
-  <!-- Modal Structure -->
-  <div id="differenceModal" class="modal">
+  <h1>Find the Difference Gallery</h1>
+  <div class="gallery">
+    <!-- Each gallery item below contains two data attributes:
+         data-puzzle="puzzle1" and data-differences="29" -->
+    <a class="gallery-item" href="#" data-puzzle="puzzle1" data-differences="29">
+      <img src="imgs/puz1.jpg" alt="Puzzle 1 Thumbnail">
+      <div class="caption">Russia</div>
+    </a>
+    <!-- Additional gallery items can be added as needed -->
+  </div>
+
+  <footer>
+    <p>
+      If you are the owner of any image on this site and do not wish it to appear,
+      please email us at <a href="mailto:findthediff-main@iname.com">findthediff-main@iname.com</a>.
+    </p>
+    <p>&copy; 2025 findthediff.ddnsfree.com. All rights reserved.</p>
+  </footer>
+
+  <!-- Modal Popup -->
+  <div id="popupModal" class="modal">
     <div class="modal-content">
-      <p id="modalMessage"></p>
-      <button id="closeModal" class="close-btn">Close</button>
+      <!-- Close Button -->
+      <button class="close-modal" id="closePopup">&times;</button>
+      <!-- Puzzle Info -->
+      <h2 id="puzzleInfo"></h2>
+      <!-- Buttons for Download and View -->
+      <div class="modal-btns">
+        <button class="download-btn" id="downloadBtn">Download</button>
+        <button class="view-btn" id="viewBtn">View</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // Global variable to store the current download URL
-    var currentZipUrl = "";
-    // Function to trigger a download using a temporary anchor element.
-    function triggerDownload(url) {
-      var link = document.createElement('a');
-      link.href = url;
-      link.download = url.split('/').pop();
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-    // Function to close modal and then trigger the download
-    function closeModalAndDownload() {
-      document.getElementById('differenceModal').style.display = "none";
-      triggerDownload(currentZipUrl);
-    }
-    // Attach click event listener to gallery links
-    document.querySelectorAll('.gallery-item a').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
+    // When a gallery item is clicked, show the modal with appropriate data.
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      item.addEventListener('click', function(e) {
         e.preventDefault();
-        currentZipUrl = this.getAttribute('href');
-        var differences = this.getAttribute('data-differences');
-        document.getElementById('modalMessage').textContent = "This puzzle has " + differences + " differences. Your download will begin shortly.";
-        var modal = document.getElementById('differenceModal');
-        modal.style.display = "block";
-        var autoCloseTimer = setTimeout(function() {
-          closeModalAndDownload();
-        }, 10000);
-        document.getElementById('closeModal').onclick = function() {
-          clearTimeout(autoCloseTimer);
-          closeModalAndDownload();
-        };
+        const puzzleId = this.getAttribute('data-puzzle');
+        const differences = this.getAttribute('data-differences');
+
+        // Set the popup info
+        document.getElementById('puzzleInfo').textContent = 
+          `This puzzle has ${differences} differences to find`;
+
+        // Save the current puzzle id in a global variable for later use
+        window.currentPuzzleId = puzzleId;
+
+        // Show the modal popup
+        document.getElementById('popupModal').style.display = 'block';
       });
     });
-    // Optional: Close modal if clicking outside the modal content
+
+    // Close button for the modal popup
+    document.getElementById('closePopup').addEventListener('click', function() {
+      document.getElementById('popupModal').style.display = 'none';
+    });
+
+    // Download button: downloads /zips/[puzzle].zip
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+      if (window.currentPuzzleId) {
+        const downloadUrl = `/zips/${window.currentPuzzleId}.zip`;
+        // Create a temporary link element and trigger a click on it
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = window.currentPuzzleId + ".zip";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        document.getElementById('popupModal').style.display = 'none';
+      }
+    });
+
+    // View button in modal: redirects to /view?puzzle=[puzzle]
+    document.getElementById('viewBtn').addEventListener('click', function() {
+      if (window.currentPuzzleId) {
+        window.location.href = `/view?puzzle=${window.currentPuzzleId}`;
+      }
+    });
+
+    // Optional: Click anywhere outside modal-content to close modal.
     window.onclick = function(event) {
-      var modal = document.getElementById('differenceModal');
-      if (event.target === modal) {
-        closeModalAndDownload();
+      const modal = document.getElementById('popupModal');
+      if (event.target == modal) {
+        modal.style.display = 'none';
       }
     };
   </script>
