@@ -31,6 +31,12 @@
     .top-banner a.active {
       text-decoration: underline;
     }
+    /* Translator Container */
+    #translate-container {
+      margin: 20px auto;
+      max-width: 900px;
+    }
+
     h1, h2 {
       margin: 0 0 10px;
     }
@@ -159,6 +165,18 @@
   </style>
   <!-- Include JSZip library from CDN -->
   <script src="jszip.min.js"></script>
+  
+  <script>
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+      includedLanguages: 'en,ru,es,fr,de,zh-CN,ja,ko'
+    }, 'translate-container');
+  }
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  
 </head>
 <body>
   <!-- Top Navigation Banner -->
@@ -166,7 +184,9 @@
     <a href="/">Gallery</a>
     <a href="/view" class="active">View</a>
   </div>
-
+  
+  <div id="translate-container"></div>
+  
   <h1>Puzzle Viewer</h1>
   <p>Please upload your puzzle ZIP file.</p>
   <input type="file" id="zipInput" accept=".zip">
