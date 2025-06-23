@@ -20,8 +20,7 @@
       align-items: center;
       background-color: #0073e6;
       padding: 10px 20px;
-      margin-bottom: 20px;
-      position: relative;
+      margin-bottom: 10px;
     }
     .top-banner a {
       color: #fff;
@@ -32,14 +31,12 @@
     .top-banner a.active {
       text-decoration: underline;
     }
-    /* Translator container - positioned in top left within banner */
-    #google_translate_element {
-      position: absolute;
-      left: 10px;
-      top: 10px;
+    /* Translator Container placed below the top banner */
+    #translate-container {
+      margin-bottom: 20px;
     }
     h1 {
-      margin-top: 60px; /* Add top margin to clear translator widget */
+      margin-top: 0;
     }
     .gallery {
       display: flex;
@@ -57,7 +54,6 @@
       background: #fff;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: transform 0.2s;
-      position: relative;
     }
     .gallery-item:hover {
       transform: scale(1.03);
@@ -93,7 +89,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0,0,0,0.5);
     }
     .modal-content {
       position: relative;
@@ -150,24 +146,24 @@
   <div class="top-banner">
     <a href="/gallery" class="active">Gallery</a>
     <a href="/view">View</a>
-    <div id="google_translate_element"></div>
   </div>
-
+  
+  <!-- Translator Container placed just below the banner -->
+  <div id="translate-container"></div>
+  
   <h1>Find the Difference Gallery</h1>
   <div class="gallery">
-    <!-- Each gallery item below contains two data attributes:
-         data-puzzle="puzzle1" and data-differences="29" -->
+    <!-- Each gallery item contains data attributes -->
     <a class="gallery-item" href="#" data-puzzle="puzzle1" data-differences="29">
       <img src="imgs/puz1.jpg" alt="Puzzle 1 Thumbnail">
       <div class="caption">Russia</div>
     </a>
-    <!-- Additional gallery items can be added as needed -->
   </div>
 
   <footer>
     <p>
-      If you are the owner of any image on this site and do not wish it to appear,
-      please email us at <a href="mailto:findthediff-main@iname.com">findthediff-main@iname.com</a>.
+      If you are the owner of any image on this site and do not wish it to appear, please email us at 
+      <a href="mailto:findthediff-main@iname.com">findthediff-main@iname.com</a>.
     </p>
     <p>&copy; 2025 findthediff.ddnsfree.com. All rights reserved.</p>
   </footer>
@@ -188,35 +184,36 @@
   </div>
 
   <script>
-    // When a gallery item is clicked, show the modal with appropriate data.
+    // Initialize Google Translate Element inside the "translate-container"
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', 
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        includedLanguages: 'en,ru,es,fr,de,zh-CN,ja,ko'
+      }, 'translate-container');
+    }
+    
+    // When a gallery item is clicked, show the modal with appropriate info.
     document.querySelectorAll('.gallery-item').forEach(item => {
       item.addEventListener('click', function(e) {
         e.preventDefault();
         const puzzleId = this.getAttribute('data-puzzle');
         const differences = this.getAttribute('data-differences');
-
-        // Set the popup info
-        document.getElementById('puzzleInfo').textContent = 
-          `This puzzle has ${differences} differences to find`;
-
-        // Save the current puzzle id in a global variable for later use
+        document.getElementById('puzzleInfo').textContent = `This puzzle has ${differences} differences to find`;
         window.currentPuzzleId = puzzleId;
-
-        // Show the modal popup
         document.getElementById('popupModal').style.display = 'block';
       });
     });
-
-    // Close button for the modal popup
+    
+    // Close modal
     document.getElementById('closePopup').addEventListener('click', function() {
       document.getElementById('popupModal').style.display = 'none';
     });
-
-    // Download button: downloads /zips/[puzzle].zip
+    
+    // Download action
     document.getElementById('downloadBtn').addEventListener('click', function() {
       if (window.currentPuzzleId) {
         const downloadUrl = `/zips/${window.currentPuzzleId}.zip`;
-        // Create a temporary link element and trigger a click on it
         const link = document.createElement('a');
         link.href = downloadUrl;
         link.download = window.currentPuzzleId + ".zip";
@@ -226,15 +223,15 @@
         document.getElementById('popupModal').style.display = 'none';
       }
     });
-
-    // View button in modal: redirects to /view?puzzle=[puzzle]
+    
+    // View action
     document.getElementById('viewBtn').addEventListener('click', function() {
       if (window.currentPuzzleId) {
         window.location.href = `/view?puzzle=${window.currentPuzzleId}`;
       }
     });
-
-    // Optional: Click anywhere outside modal-content to close modal.
+    
+    // Close modal if clicking outside it.
     window.onclick = function(event) {
       const modal = document.getElementById('popupModal');
       if (event.target == modal) {
@@ -243,8 +240,6 @@
     };
   </script>
   
-  <!-- Load Google Translate script -->
   <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-  
 </body>
 </html>
