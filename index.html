@@ -31,6 +31,12 @@
     .top-banner a.active {
       text-decoration: underline;
     }
+    /* Translator container */
+    #translate-container {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
     h1 {
       margin-top: 0;
     }
@@ -145,6 +151,17 @@
     <a href="/view">View</a>
   </div>
 
+    <!-- Google Translate widget snippet -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', 
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        includedLanguages: 'en,ru,es,fr,de,zh-CN,ja,ko'
+      }, 'google_translate_element');
+    }
+  </script>
+  
   <h1>Find the Difference Gallery</h1>
   <div class="gallery">
     <!-- Each gallery item below contains two data attributes:
