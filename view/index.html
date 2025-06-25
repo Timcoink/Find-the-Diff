@@ -162,9 +162,16 @@
       font-size: 14px;
       margin-right: 10px;
     }
+    /* Loading indicator */
+    #loadingIndicator {
+      display: none;
+      margin: 20px 0;
+      font-size: 16px;
+      color: #0073e6;
+    }
   </style>
   <!-- Include JSZip library from CDN -->
-  <script src="jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
   <script>
   function googleTranslateElementInit() {
@@ -188,8 +195,9 @@
   <div id="translate-container"></div>
   
   <h1>Puzzle Viewer</h1>
-  <p>Please upload your puzzle ZIP file.</p>
+  <p>Please upload your puzzle ZIP file or use ?view=URL to load from a URL.</p>
   <input type="file" id="zipInput" accept=".zip">
+  <div id="loadingIndicator">Loading ZIP file from URL...</div>
   <div id="uploadError"></div>
   
   <!-- Combined Image Section with Drawing Editor -->
@@ -239,13 +247,9 @@
     let canvasAspectRatio = 1;
     let answerAspectRatio = 1;
 
-    // ----- ZIP Extraction and Setup -----
-    document.getElementById('zipInput').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      document.getElementById('uploadError').textContent = "";
-      
-      JSZip.loadAsync(file).then(function(zip) {
+    // Function to process ZIP file (whether from file upload or URL)
+    function processZipFile(zipData) {
+      return JSZip.loadAsync(zipData).then(function(zip) {
         let combinedEntry = null, answerEntry = null, textEntry = null;
         zip.forEach(function(relativePath, zipEntry) {
           if (!zipEntry.dir) {
@@ -273,102 +277,143 @@
         ]);
       })
       .then(function(results) {
-        const combinedBlob = results[0];
-        const answerBlob = results[1];
-        const textContent = results[2];
-        const combinedUrl = URL.createObjectURL(combinedBlob);
-        const answerUrl = URL.createObjectURL(answerBlob);
-        
-        // Set the answer image source.
-        document.getElementById('answerImg').src = answerUrl;
-        
-        // Show the combined section and toggle button.
-        document.getElementById('combinedSection').style.display = "block";
-        document.getElementById('toggleAnswerBtn').style.display = "block";
-        
-        // ----- Set up Two Canvas Layers for Drawing -----
-        const bgCanvas = document.getElementById("bgCanvas");
-        const drawCanvas = document.getElementById("drawCanvas");
-        const container = document.getElementById("canvasContainer");
-        const bgCtx = bgCanvas.getContext("2d");
-        const drawCtx = drawCanvas.getContext("2d");
-        let imgPainter = new Image();
-        imgPainter.onload = function() {
-          // Set internal resolution to natural dimensions.
-          bgCanvas.width = imgPainter.naturalWidth;
-          bgCanvas.height = imgPainter.naturalHeight;
-          drawCanvas.width = imgPainter.naturalWidth;
-          drawCanvas.height = imgPainter.naturalHeight;
-          // Draw the background image.
-          bgCtx.drawImage(imgPainter, 0, 0);
-          // Compute aspect ratio and update container resizing.
-          canvasAspectRatio = imgPainter.naturalHeight / imgPainter.naturalWidth;
-          // Set the container's height based on its current width.
-          container.style.height = (container.offsetWidth * canvasAspectRatio) + "px";
+        setupPuzzleViewer(results[0], results[1], results[2]);
+      });
+    }
+
+    // Function to set up the puzzle viewer with the extracted files
+    function setupPuzzleViewer(combinedBlob, answerBlob, textContent) {
+      const combinedUrl = URL.createObjectURL(combinedBlob);
+      const answerUrl = URL.createObjectURL(answerBlob);
+      
+      // Set the answer image source.
+      document.getElementById('answerImg').src = answerUrl;
+      
+      // Show the combined section and toggle button.
+      document.getElementById('combinedSection').style.display = "block";
+      document.getElementById('toggleAnswerBtn').style.display = "block";
+      
+      // ----- Set up Two Canvas Layers for Drawing -----
+      const bgCanvas = document.getElementById("bgCanvas");
+      const drawCanvas = document.getElementById("drawCanvas");
+      const container = document.getElementById("canvasContainer");
+      const bgCtx = bgCanvas.getContext("2d");
+      const drawCtx = drawCanvas.getContext("2d");
+      let imgPainter = new Image();
+      imgPainter.onload = function() {
+        // Set internal resolution to natural dimensions.
+        bgCanvas.width = imgPainter.naturalWidth;
+        bgCanvas.height = imgPainter.naturalHeight;
+        drawCanvas.width = imgPainter.naturalWidth;
+        drawCanvas.height = imgPainter.naturalHeight;
+        // Draw the background image.
+        bgCtx.drawImage(imgPainter, 0, 0);
+        // Compute aspect ratio and update container resizing.
+        canvasAspectRatio = imgPainter.naturalHeight / imgPainter.naturalWidth;
+        // Set the container's height based on its current width.
+        container.style.height = (container.offsetWidth * canvasAspectRatio) + "px";
+      };
+      imgPainter.src = combinedUrl;
+      
+      // ----- Drawing Setup on drawCanvas (Annotation Layer) -----
+      let drawing = false;
+      let eraserMode = false;
+      let currentColor = document.getElementById('colorPicker').value;
+      let brushSize = document.getElementById('brushSize').value;
+      function getMousePos(evt) {
+        const rect = drawCanvas.getBoundingClientRect();
+        const scaleX = drawCanvas.width / rect.width;
+        const scaleY = drawCanvas.height / rect.height;
+        return {
+          x: (evt.clientX - rect.left) * scaleX,
+          y: (evt.clientY - rect.top) * scaleY
         };
-        imgPainter.src = combinedUrl;
-        
-        // ----- Drawing Setup on drawCanvas (Annotation Layer) -----
-        let drawing = false;
-        let eraserMode = false;
-        let currentColor = document.getElementById('colorPicker').value;
-        let brushSize = document.getElementById('brushSize').value;
-        function getMousePos(evt) {
-          const rect = drawCanvas.getBoundingClientRect();
-          const scaleX = drawCanvas.width / rect.width;
-          const scaleY = drawCanvas.height / rect.height;
-          return {
-            x: (evt.clientX - rect.left) * scaleX,
-            y: (evt.clientY - rect.top) * scaleY
-          };
+      }
+      drawCanvas.addEventListener("mousedown", function(evt) {
+        drawing = true;
+        const pos = getMousePos(evt);
+        drawCtx.beginPath();
+        drawCtx.moveTo(pos.x, pos.y);
+      });
+      drawCanvas.addEventListener("mousemove", function(evt) {
+        if (!drawing) return;
+        const pos = getMousePos(evt);
+        if (eraserMode) {
+          drawCtx.clearRect(pos.x - brushSize/2, pos.y - brushSize/2, brushSize, brushSize);
+        } else {
+          drawCtx.lineTo(pos.x, pos.y);
+          drawCtx.strokeStyle = currentColor;
+          drawCtx.lineWidth = brushSize;
+          drawCtx.lineCap = "round";
+          drawCtx.stroke();
         }
-        drawCanvas.addEventListener("mousedown", function(evt) {
-          drawing = true;
-          const pos = getMousePos(evt);
-          drawCtx.beginPath();
-          drawCtx.moveTo(pos.x, pos.y);
-        });
-        drawCanvas.addEventListener("mousemove", function(evt) {
-          if (!drawing) return;
-          const pos = getMousePos(evt);
-          if (eraserMode) {
-            drawCtx.clearRect(pos.x - brushSize/2, pos.y - brushSize/2, brushSize, brushSize);
-          } else {
-            drawCtx.lineTo(pos.x, pos.y);
-            drawCtx.strokeStyle = currentColor;
-            drawCtx.lineWidth = brushSize;
-            drawCtx.lineCap = "round";
-            drawCtx.stroke();
-          }
-        });
-        drawCanvas.addEventListener("mouseup", function() {
-          drawing = false;
-        });
-        drawCanvas.addEventListener("mouseleave", function() {
-          drawing = false;
-        });
-        document.getElementById("colorPicker").addEventListener("change", function() {
-          currentColor = this.value;
-          eraserMode = false;
-          document.getElementById("eraserBtn").textContent = "Eraser";
-        });
-        document.getElementById("brushSize").addEventListener("input", function() {
-          brushSize = this.value;
-        });
-        document.getElementById("eraserBtn").addEventListener("click", function() {
-          eraserMode = !eraserMode;
-          this.textContent = eraserMode ? "Pencil" : "Eraser";
-        });
-        document.getElementById("clearBtn").addEventListener("click", function() {
-          drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-        });
+      });
+      drawCanvas.addEventListener("mouseup", function() {
+        drawing = false;
+      });
+      drawCanvas.addEventListener("mouseleave", function() {
+        drawing = false;
+      });
+      document.getElementById("colorPicker").addEventListener("change", function() {
+        currentColor = this.value;
+        eraserMode = false;
+        document.getElementById("eraserBtn").textContent = "Eraser";
+      });
+      document.getElementById("brushSize").addEventListener("input", function() {
+        brushSize = this.value;
+      });
+      document.getElementById("eraserBtn").addEventListener("click", function() {
+        eraserMode = !eraserMode;
+        this.textContent = eraserMode ? "Pencil" : "Eraser";
+      });
+      document.getElementById("clearBtn").addEventListener("click", function() {
+        drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+      });
+      
+      // Display text file content if present.
+      if (textContent) {
+        document.getElementById("textPreview").innerText = textContent;
+      }
+    }
+
+    // Check for URL parameter on page load
+    window.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const viewParam = urlParams.get('view');
+      
+      if (viewParam) {
+        // Show loading indicator
+        document.getElementById('loadingIndicator').style.display = 'block';
+        document.getElementById('zipInput').style.display = 'none';
         
-        // Display text file content if present.
-        if (textContent) {
-          document.getElementById("textPreview").innerText = textContent;
-        }
-      })
-      .catch(function(error) {
+        // Fetch ZIP file from URL
+        fetch(viewParam)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.arrayBuffer();
+          })
+          .then(arrayBuffer => {
+            document.getElementById('loadingIndicator').style.display = 'none';
+            return processZipFile(arrayBuffer);
+          })
+          .catch(error => {
+            console.error("Error loading ZIP from URL:", error);
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('zipInput').style.display = 'block';
+            document.getElementById('uploadError').textContent = "Error loading ZIP file from URL: " + error.message;
+          });
+      }
+    });
+    
+    // ----- ZIP Extraction and Setup for File Upload -----
+    document.getElementById('zipInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      document.getElementById('uploadError').textContent = "";
+      
+      processZipFile(file).catch(function(error) {
         console.error("Error reading ZIP file:", error);
         document.getElementById('uploadError').textContent = "Error loading ZIP file: " + error.message;
       });
