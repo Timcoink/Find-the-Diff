@@ -153,10 +153,34 @@
   
   <h1>Find the Difference Gallery</h1>
   <div class="gallery">
-    <!-- Each gallery item contains data attributes -->
-    <a class="gallery-item" href="#" data-puzzle="puzzle1" data-differences="29">
+    <!-- Each gallery item contains data attributes including custom view URL -->
+    <a class="gallery-item" href="#" 
+       data-puzzle="puzzle1" 
+       data-differences="29"
+       data-download-url="/zips/puzzle1.zip"
+       data-view-url="/view?view=https%3A%2F%2Fraw.githubusercontent.com%2FTimcoink%2FFind-the-Diff%2Fmain%2Fzips%2Fpuzzle1.zip">
       <img src="imgs/puz1.jpg" alt="Puzzle 1 Thumbnail">
       <div class="caption">Russia</div>
+    </a>
+    
+    <!-- Example of another puzzle with different URLs -->
+    <a class="gallery-item" href="#" 
+       data-puzzle="puzzle2" 
+       data-differences="15"
+       data-download-url="/zips/puzzle2.zip"
+       data-view-url="/view?view=https%3A%2F%2Fraw.githubusercontent.com%2FTimcoink%2FFind-the-Diff%2Fmain%2Fzips%2Fpuzzle2.zip">
+      <img src="imgs/puz2.jpg" alt="Puzzle 2 Thumbnail">
+      <div class="caption">City Scene</div>
+    </a>
+    
+    <!-- Example using local file path -->
+    <a class="gallery-item" href="#" 
+       data-puzzle="puzzle3" 
+       data-differences="22"
+       data-download-url="/zips/puzzle3.zip"
+       data-view-url="/view?puzzle=puzzle3">
+      <img src="imgs/puz3.jpg" alt="Puzzle 3 Thumbnail">
+      <div class="caption">Nature</div>
     </a>
   </div>
 
@@ -193,14 +217,24 @@
       }, 'translate-container');
     }
     
+    // Store current puzzle data
+    let currentPuzzleData = {};
+    
     // When a gallery item is clicked, show the modal with appropriate info.
     document.querySelectorAll('.gallery-item').forEach(item => {
       item.addEventListener('click', function(e) {
         e.preventDefault();
-        const puzzleId = this.getAttribute('data-puzzle');
-        const differences = this.getAttribute('data-differences');
-        document.getElementById('puzzleInfo').textContent = `This puzzle has ${differences} differences to find`;
-        window.currentPuzzleId = puzzleId;
+        
+        // Get all data attributes
+        currentPuzzleData = {
+          puzzleId: this.getAttribute('data-puzzle'),
+          differences: this.getAttribute('data-differences'),
+          downloadUrl: this.getAttribute('data-download-url'),
+          viewUrl: this.getAttribute('data-view-url')
+        };
+        
+        // Update modal content
+        document.getElementById('puzzleInfo').textContent = `This puzzle has ${currentPuzzleData.differences} differences to find`;
         document.getElementById('popupModal').style.display = 'block';
       });
     });
@@ -212,11 +246,10 @@
     
     // Download action
     document.getElementById('downloadBtn').addEventListener('click', function() {
-      if (window.currentPuzzleId) {
-        const downloadUrl = `/zips/${window.currentPuzzleId}.zip`;
+      if (currentPuzzleData.downloadUrl) {
         const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = window.currentPuzzleId + ".zip";
+        link.href = currentPuzzleData.downloadUrl;
+        link.download = currentPuzzleData.puzzleId + ".zip";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -224,10 +257,10 @@
       }
     });
     
-    // View action
+    // View action - now uses custom URL
     document.getElementById('viewBtn').addEventListener('click', function() {
-      if (window.currentPuzzleId) {
-        window.location.href = `/view?puzzle=${window.currentPuzzleId}`;
+      if (currentPuzzleData.viewUrl) {
+        window.location.href = currentPuzzleData.viewUrl;
       }
     });
     
