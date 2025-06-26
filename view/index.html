@@ -84,9 +84,10 @@
       background: #fff;
       padding: 5px;
       cursor: move;
-      /* We'll override native resizing with our JavaScript */
       width: 300px;
       min-height: 150px;
+      min-width: 150px;
+      resize: none; /* Disable default resize */
     }
     #answerKeyHeader {
       font-weight: bold;
@@ -101,6 +102,17 @@
       height: auto;
       display: block;
       margin: 0 auto 20px;
+    }
+    /* Custom resize handle for answer key */
+    #answerResizeHandle {
+      width: 15px;
+      height: 15px;
+      background: #0073e6;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      cursor: se-resize;
+      z-index: 10;
     }
     #uploadError {
       color: red;
@@ -128,9 +140,9 @@
       display: inline-block;
       border: 2px solid #ccc;
       overflow: hidden;
-      /* Initial size based on image will be set later; allow uniform resizing */
-      width: 100%;
-      max-width: 100%;
+      /* Size will be calculated based on viewing area */
+      max-width: calc(100vw - 80px); /* Account for padding and margins */
+      max-height: calc(100vh - 400px); /* Account for header, controls, and footer */
     }
     /* A custom resize handle for the canvas container */
     #canvasResizeHandle {
@@ -227,7 +239,7 @@
     <div id="answerKeyContainer">
       <div id="answerKeyHeader">Answer Key - moveable and resizable</div>
       <img id="answerImg" src="" alt="Answer Key Image">
-      <div id="resizeHandle"></div>
+      <div id="answerResizeHandle"></div>
     </div>
   </div>
   
@@ -246,6 +258,28 @@
     // Global variables for storing aspect ratios
     let canvasAspectRatio = 1;
     let answerAspectRatio = 1;
+
+    // Function to calculate optimal canvas size based on viewing area
+    function calculateOptimalCanvasSize(imageWidth, imageHeight) {
+      const maxWidth = Math.min(window.innerWidth - 80, 1200); // Account for padding and set max width
+      const maxHeight = window.innerHeight - 400; // Account for header, controls, footer
+      
+      const imageAspectRatio = imageHeight / imageWidth;
+      
+      let optimalWidth = maxWidth;
+      let optimalHeight = optimalWidth * imageAspectRatio;
+      
+      // If height exceeds max height, scale based on height instead
+      if (optimalHeight > maxHeight) {
+        optimalHeight = maxHeight;
+        optimalWidth = optimalHeight / imageAspectRatio;
+      }
+      
+      return {
+        width: Math.floor(optimalWidth),
+        height: Math.floor(optimalHeight)
+      };
+    }
 
     // Function to process ZIP file (whether from file upload or URL)
     function processZipFile(zipData) {
@@ -286,8 +320,12 @@
       const combinedUrl = URL.createObjectURL(combinedBlob);
       const answerUrl = URL.createObjectURL(answerBlob);
       
-      // Set the answer image source.
-      document.getElementById('answerImg').src = answerUrl;
+      // Set the answer image source and store aspect ratio
+      const answerImg = document.getElementById('answerImg');
+      answerImg.src = answerUrl;
+      answerImg.onload = function() {
+        answerAspectRatio = answerImg.naturalHeight / answerImg.naturalWidth;
+      };
       
       // Show the combined section and toggle button.
       document.getElementById('combinedSection').style.display = "block";
@@ -301,17 +339,24 @@
       const drawCtx = drawCanvas.getContext("2d");
       let imgPainter = new Image();
       imgPainter.onload = function() {
-        // Set internal resolution to natural dimensions.
+        // Calculate optimal size based on viewing area
+        const optimalSize = calculateOptimalCanvasSize(imgPainter.naturalWidth, imgPainter.naturalHeight);
+        
+        // Set container size
+        container.style.width = optimalSize.width + "px";
+        container.style.height = optimalSize.height + "px";
+        
+        // Set internal resolution to natural dimensions for quality
         bgCanvas.width = imgPainter.naturalWidth;
         bgCanvas.height = imgPainter.naturalHeight;
         drawCanvas.width = imgPainter.naturalWidth;
         drawCanvas.height = imgPainter.naturalHeight;
-        // Draw the background image.
+        
+        // Draw the background image
         bgCtx.drawImage(imgPainter, 0, 0);
-        // Compute aspect ratio and update container resizing.
+        
+        // Store aspect ratio for resizing
         canvasAspectRatio = imgPainter.naturalHeight / imgPainter.naturalWidth;
-        // Set the container's height based on its current width.
-        container.style.height = (container.offsetWidth * canvasAspectRatio) + "px";
       };
       imgPainter.src = combinedUrl;
       
@@ -437,13 +482,10 @@
     (function() {
       const aContainer = document.getElementById("answerKeyContainer");
       const aHeader = document.getElementById("answerKeyHeader");
-      const resizeHandle = document.getElementById("resizeHandle");
+      const resizeHandle = document.getElementById("answerResizeHandle");
       let aspectRatio = 1;
-      // Once the answer image loads, capture its natural aspect ratio.
-      const answerImg = document.getElementById("answerImg");
-      answerImg.onload = function() {
-        aspectRatio = answerImg.naturalHeight / answerImg.naturalWidth;
-      };
+      
+      // Dragging functionality
       let posX = 0, posY = 0, startX = 0, startY = 0;
       aHeader.onmousedown = dragMouseDown;
       function dragMouseDown(e) {
@@ -468,18 +510,26 @@
         document.onmouseup = null;
         document.onmousemove = null;
       }
-      // Resizable with uniform aspect ratio.
+      
+      // Resizing functionality with aspect ratio preservation
       resizeHandle.onmousedown = initResize;
       function initResize(e) {
         e.preventDefault();
+        aspectRatio = answerAspectRatio || 1; // Use the stored aspect ratio
         document.onmousemove = startResize;
         document.onmouseup = stopResize;
       }
       function startResize(e) {
         const rect = aContainer.getBoundingClientRect();
-        // Use horizontal drag to determine new width, then set height based on aspect ratio.
         let newWidth = e.clientX - rect.left;
         let newHeight = newWidth * aspectRatio;
+        
+        // Apply minimum size constraints
+        if (newWidth < 150) {
+          newWidth = 150;
+          newHeight = newWidth * aspectRatio;
+        }
+        
         aContainer.style.width = newWidth + "px";
         aContainer.style.height = newHeight + "px";
       }
@@ -493,11 +543,7 @@
     (function() {
       const container = document.getElementById("canvasContainer");
       const resizeHandle = document.getElementById("canvasResizeHandle");
-      let aspectRatio = canvasAspectRatio; // This value will be set after image load.
-      // To update aspectRatio later, we watch when the background canvas is ready.
-      container.updateAspectRatio = function(ratio) {
-        aspectRatio = ratio;
-      }
+      
       resizeHandle.onmousedown = initResize;
       function initResize(e) {
         e.preventDefault();
@@ -507,7 +553,14 @@
       function startResize(e) {
         const rect = container.getBoundingClientRect();
         let newWidth = e.clientX - rect.left;
-        let newHeight = newWidth * aspectRatio;
+        let newHeight = newWidth * canvasAspectRatio;
+        
+        // Apply minimum size constraints
+        if (newWidth < 300) {
+          newWidth = 300;
+          newHeight = newWidth * canvasAspectRatio;
+        }
+        
         container.style.width = newWidth + "px";
         container.style.height = newHeight + "px";
       }
@@ -517,19 +570,11 @@
       }
     })();
     
-    // After the background image loads, update the canvas container aspect ratio.
-    window.addEventListener("load", function() {
-      const container = document.getElementById("canvasContainer");
-      const bgCanvas = document.getElementById("bgCanvas");
-      if(bgCanvas.width && bgCanvas.height){
-        let ratio = bgCanvas.height / bgCanvas.width;
-        container.updateAspectRatio(ratio);
-        // Also update container height based on its current width.
-        container.style.height = (container.offsetWidth * ratio) + "px";
-      }
+    // Handle window resize to recalculate canvas size if needed
+    window.addEventListener('resize', function() {
+      // Optionally recalculate canvas size on window resize
+      // This could be implemented to automatically adjust the canvas size
     });
   </script>
-  
-  <!-- The editorControls div is already present above with the drawing buttons -->
 </body>
 </html>
