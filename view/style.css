@@ -1,0 +1,345 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  text-align: center;
+  color: #333;
+  overflow-x: auto;
+}
+
+/* Top Banner Styles */
+.top-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #0073e6;
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.top-banner a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.top-banner a.active {
+  text-decoration: underline;
+}
+
+/* Translator Container */
+#translate-container {
+  margin: 10px auto;
+  max-width: 900px;
+}
+
+h1, h2 {
+  margin: 0 0 10px;
+  padding: 0 20px;
+}
+
+p {
+  margin: 10px 0;
+  padding: 0 20px;
+}
+
+.responsive-img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 10px 5px;
+  cursor: pointer;
+  background-color: #0073e6;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #005bb5;
+}
+
+footer {
+  margin-top: 40px;
+  font-size: 0.9rem;
+  border-top: 1px solid #ddd;
+  padding: 20px;
+  color: #555;
+}
+
+footer a {
+  color: #0073e6;
+  text-decoration: none;
+}
+
+#answerSection {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* Answer Key Container (moveable and uniformly resizable) */
+#answerKeyContainer {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  border: 2px dashed #0073e6;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 5px;
+  cursor: move;
+  width: 300px;
+  min-height: 150px;
+  min-width: 150px;
+  resize: none;
+  pointer-events: all;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#answerKeyHeader {
+  font-weight: bold;
+  background: #0073e6;
+  color: #fff;
+  cursor: move;
+  padding: 5px;
+  user-select: none;
+  font-size: 12px;
+}
+
+#answerImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 5px 0;
+}
+
+/* Custom resize handle for answer key */
+#answerResizeHandle {
+  width: 15px;
+  height: 15px;
+  background: #0073e6;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+  z-index: 10;
+}
+
+#uploadError {
+  color: red;
+  font-weight: bold;
+  margin: 10px 0;
+  padding: 0 20px;
+}
+
+#zipInput {
+  margin: 10px auto;
+  display: block;
+}
+
+#textPreview {
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  text-align: left;
+  max-width: 800px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Canvas Container for Drawing (Combined Image Editor) */
+#canvasContainer {
+  position: relative;
+  margin: 0 auto 10px;
+  display: inline-block;
+  border: 2px solid #ccc;
+  overflow: visible;
+  min-width: 300px;
+  min-height: 200px;
+}
+
+/* A custom resize handle for the canvas container */
+#canvasResizeHandle {
+  width: 20px;
+  height: 20px;
+  background: #0073e6;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  cursor: se-resize;
+  z-index: 10;
+  border: 1px solid #fff;
+}
+
+/* Both canvas layers will fill the container */
+#bgCanvas, #drawCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Drawing Controls - Fixed positioning */
+#editorControls {
+  margin: 20px auto;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #ddd;
+  max-width: 800px;
+  position: relative;
+  z-index: 50;
+}
+
+/* Always bottom by default */
+#editorControls.bottom-position {
+  position: relative;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* Top sticky position option */
+#editorControls.top-position {
+  position: sticky;
+  top: 70px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+#editorControls label,
+#editorControls input,
+#editorControls button {
+  font-size: 14px;
+  margin: 0;
+  vertical-align: middle;
+}
+
+#editorControls .control-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Settings Panel */
+#settingsPanel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 2px solid #0073e6;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 300;
+  display: none;
+  min-width: 300px;
+}
+
+#settingsPanel h3 {
+  margin-top: 0;
+  color: #0073e6;
+}
+
+.settings-option {
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-option label {
+  font-weight: bold;
+  min-width: 120px;
+}
+
+/* Loading indicator */
+#loadingIndicator {
+  display: none;
+  margin: 20px 0;
+  font-size: 16px;
+  color: #0073e6;
+}
+
+/* Full screen mode styles */
+.fullscreen-mode {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1000 !important;
+  background: #000 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+/* Fullscreen button positioning - FIXED */
+#fullscreenBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 30;
+  padding: 8px 12px;
+  font-size: 12px;
+  background: rgba(0, 115, 230, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#fullscreenBtn:hover {
+  background: rgba(0, 91, 181, 0.9);
+}
+
+/* Settings button */
+#settingsBtn {
+  background: #666;
+  font-size: 12px;
+  padding: 5px 10px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#settingsBtn:hover {
+  background: #555;
+}
+
+/* Overlay for settings */
+#settingsOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 250;
+  display: none;
+}
