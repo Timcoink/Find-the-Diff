@@ -4,184 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Puzzle Viewer - Upload ZIP</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      text-align: center;
-      color: #333;
-    }
-    /* Top Banner Styles */
-    .top-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #0073e6;
-      padding: 10px 20px;
-      margin-bottom: 20px;
-    }
-    .top-banner a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    .top-banner a.active {
-      text-decoration: underline;
-    }
-    /* Translator Container */
-    #translate-container {
-      margin: 20px auto;
-      max-width: 900px;
-    }
-
-    h1, h2 {
-      margin: 0 0 10px;
-    }
-    p {
-      margin: 10px 0;
-    }
-    .responsive-img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 0 auto 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin: 20px 0;
-      cursor: pointer;
-      background-color: #0073e6;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-    }
-    footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
-      border-top: 1px solid #ddd;
-      padding-top: 10px;
-      color: #555;
-    }
-    footer a {
-      color: #0073e6;
-      text-decoration: none;
-    }
-    #answerSection {
-      display: none;
-      margin-top: 20px;
-      position: relative;
-    }
-    /* Answer Key Container (moveable and uniformly resizable) */
-    #answerKeyContainer {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      border: 2px dashed #0073e6;
-      background: #fff;
-      padding: 5px;
-      cursor: move;
-      width: 300px;
-      min-height: 150px;
-      min-width: 150px;
-      resize: none; /* Disable default resize */
-    }
-    #answerKeyHeader {
-      font-weight: bold;
-      background: #0073e6;
-      color: #fff;
-      cursor: move;
-      padding: 3px;
-      user-select: none;
-    }
-    #answerImg {
-      width: 100%;
-      height: auto;
-      display: block;
-      margin: 0 auto 20px;
-    }
-    /* Custom resize handle for answer key */
-    #answerResizeHandle {
-      width: 15px;
-      height: 15px;
-      background: #0073e6;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      cursor: se-resize;
-      z-index: 10;
-    }
-    #uploadError {
-      color: red;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-    #zipInput {
-      margin: 20px auto;
-      display: block;
-    }
-    #textPreview {
-      margin: 20px auto;
-      padding: 10px;
-      border: 1px solid #ddd;
-      background-color: #fff;
-      text-align: left;
-      max-width: 800px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-    /* Canvas Container for Drawing (Combined Image Editor) */
-    #canvasContainer {
-      position: relative;
-      margin: 0 auto 10px;
-      display: inline-block;
-      border: 2px solid #ccc;
-      overflow: hidden;
-      /* Size will be calculated based on viewing area */
-      max-width: calc(100vw - 80px); /* Account for padding and margins */
-      max-height: calc(100vh - 400px); /* Account for header, controls, and footer */
-    }
-    /* A custom resize handle for the canvas container */
-    #canvasResizeHandle {
-      width: 15px;
-      height: 15px;
-      background: #0073e6;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      cursor: se-resize;
-      z-index: 10;
-    }
-    /* Both canvas layers will fill the container */
-    #bgCanvas, #drawCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    /* Drawing Controls */
-    #editorControls {
-      margin: 10px auto;
-      max-width: 600px;
-    }
-    #editorControls label,
-    #editorControls input,
-    #editorControls button {
-      font-size: 14px;
-      margin-right: 10px;
-    }
-    /* Loading indicator */
-    #loadingIndicator {
-      display: none;
-      margin: 20px 0;
-      font-size: 16px;
-      color: #0073e6;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
   <!-- Include JSZip library from CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
@@ -215,24 +38,54 @@
   <!-- Combined Image Section with Drawing Editor -->
   <div id="combinedSection" style="display:none;">
     <h2>Combined Image Editor</h2>
+    
+    <!-- Drawing Controls - Will be positioned based on settings -->
+    <div id="editorControls" class="bottom-position">
+      <div class="control-group">
+        <label for="colorPicker">Color:</label>
+        <input type="color" id="colorPicker" value="#FF0000">
+      </div>
+      <div class="control-group">
+        <label for="brushSize">Brush Size:</label>
+        <input type="range" id="brushSize" min="1" max="50" value="5">
+      </div>
+      <button id="eraserBtn">Eraser</button>
+      <button id="clearBtn">Clear Drawing</button>
+      <button id="settingsBtn">⚙️ Settings</button>
+    </div>
+    
     <div id="canvasContainer">
       <canvas id="bgCanvas"></canvas>
       <canvas id="drawCanvas"></canvas>
+      <button id="fullscreenBtn">Fullscreen</button>
       <div id="canvasResizeHandle"></div>
-    </div>
-    <!-- Drawing Controls -->
-    <div id="editorControls">
-      <label for="colorPicker">Color:</label>
-      <input type="color" id="colorPicker" value="#FF0000">
-      <label for="brushSize">Brush Size:</label>
-      <input type="range" id="brushSize" min="1" max="50" value="5">
-      <button id="eraserBtn">Eraser</button>
-      <button id="clearBtn">Clear Drawing</button>
     </div>
   </div>
   
   <!-- Button to toggle the Answer Key -->
   <button id="toggleAnswerBtn" style="display:none;" onclick="toggleAnswer()">Show Answer Key</button>
+  
+  <!-- Settings Overlay -->
+  <div id="settingsOverlay" onclick="closeSettings()"></div>
+  
+  <!-- Settings Panel -->
+  <div id="settingsPanel">
+    <h3>Settings</h3>
+    <div class="settings-option">
+      <label>Tool Position:</label>
+      <select id="toolPositionSelect">
+        <option value="bottom">Bottom</option>
+        <option value="top">Top (Sticky)</option>
+      </select>
+    </div>
+    <div class="settings-option">
+      <label>Canvas Size:</label>
+      <button onclick="resizeCanvasToFit()">Fit to Screen</button>
+    </div>
+    <div style="text-align: right; margin-top: 20px;">
+      <button onclick="closeSettings()">Close</button>
+    </div>
+  </div>
   
   <!-- Answer Key Section (Moveable and Uniformly Resizable) -->
   <div id="answerSection">
@@ -254,327 +107,6 @@
     <p>&copy; 2025 findthediff.ddnsfree.com. All rights reserved.</p>
   </footer>
 
-  <script>
-    // Global variables for storing aspect ratios
-    let canvasAspectRatio = 1;
-    let answerAspectRatio = 1;
-
-    // Function to calculate optimal canvas size based on viewing area
-    function calculateOptimalCanvasSize(imageWidth, imageHeight) {
-      const maxWidth = Math.min(window.innerWidth - 80, 1200); // Account for padding and set max width
-      const maxHeight = window.innerHeight - 400; // Account for header, controls, footer
-      
-      const imageAspectRatio = imageHeight / imageWidth;
-      
-      let optimalWidth = maxWidth;
-      let optimalHeight = optimalWidth * imageAspectRatio;
-      
-      // If height exceeds max height, scale based on height instead
-      if (optimalHeight > maxHeight) {
-        optimalHeight = maxHeight;
-        optimalWidth = optimalHeight / imageAspectRatio;
-      }
-      
-      return {
-        width: Math.floor(optimalWidth),
-        height: Math.floor(optimalHeight)
-      };
-    }
-
-    // Function to process ZIP file (whether from file upload or URL)
-    function processZipFile(zipData) {
-      return JSZip.loadAsync(zipData).then(function(zip) {
-        let combinedEntry = null, answerEntry = null, textEntry = null;
-        zip.forEach(function(relativePath, zipEntry) {
-          if (!zipEntry.dir) {
-            const lowerName = relativePath.toLowerCase();
-            if (lowerName.includes("combined") && !combinedEntry) {
-              combinedEntry = zipEntry;
-            }
-            if (lowerName.includes("answer") && !answerEntry) {
-              answerEntry = zipEntry;
-            }
-            if (lowerName.endsWith(".txt") && !textEntry) {
-              textEntry = zipEntry;
-            }
-          }
-        });
-        
-        if (!combinedEntry || !answerEntry) {
-          throw new Error("Could not find the required image files. Ensure your ZIP contains files with 'combined' and 'answer' in their names.");
-        }
-        
-        return Promise.all([
-          combinedEntry.async("blob"),
-          answerEntry.async("blob"),
-          textEntry ? textEntry.async("string") : Promise.resolve("")
-        ]);
-      })
-      .then(function(results) {
-        setupPuzzleViewer(results[0], results[1], results[2]);
-      });
-    }
-
-    // Function to set up the puzzle viewer with the extracted files
-    function setupPuzzleViewer(combinedBlob, answerBlob, textContent) {
-      const combinedUrl = URL.createObjectURL(combinedBlob);
-      const answerUrl = URL.createObjectURL(answerBlob);
-      
-      // Set the answer image source and store aspect ratio
-      const answerImg = document.getElementById('answerImg');
-      answerImg.src = answerUrl;
-      answerImg.onload = function() {
-        answerAspectRatio = answerImg.naturalHeight / answerImg.naturalWidth;
-      };
-      
-      // Show the combined section and toggle button.
-      document.getElementById('combinedSection').style.display = "block";
-      document.getElementById('toggleAnswerBtn').style.display = "block";
-      
-      // ----- Set up Two Canvas Layers for Drawing -----
-      const bgCanvas = document.getElementById("bgCanvas");
-      const drawCanvas = document.getElementById("drawCanvas");
-      const container = document.getElementById("canvasContainer");
-      const bgCtx = bgCanvas.getContext("2d");
-      const drawCtx = drawCanvas.getContext("2d");
-      let imgPainter = new Image();
-      imgPainter.onload = function() {
-        // Calculate optimal size based on viewing area
-        const optimalSize = calculateOptimalCanvasSize(imgPainter.naturalWidth, imgPainter.naturalHeight);
-        
-        // Set container size
-        container.style.width = optimalSize.width + "px";
-        container.style.height = optimalSize.height + "px";
-        
-        // Set internal resolution to natural dimensions for quality
-        bgCanvas.width = imgPainter.naturalWidth;
-        bgCanvas.height = imgPainter.naturalHeight;
-        drawCanvas.width = imgPainter.naturalWidth;
-        drawCanvas.height = imgPainter.naturalHeight;
-        
-        // Draw the background image
-        bgCtx.drawImage(imgPainter, 0, 0);
-        
-        // Store aspect ratio for resizing
-        canvasAspectRatio = imgPainter.naturalHeight / imgPainter.naturalWidth;
-      };
-      imgPainter.src = combinedUrl;
-      
-      // ----- Drawing Setup on drawCanvas (Annotation Layer) -----
-      let drawing = false;
-      let eraserMode = false;
-      let currentColor = document.getElementById('colorPicker').value;
-      let brushSize = document.getElementById('brushSize').value;
-      function getMousePos(evt) {
-        const rect = drawCanvas.getBoundingClientRect();
-        const scaleX = drawCanvas.width / rect.width;
-        const scaleY = drawCanvas.height / rect.height;
-        return {
-          x: (evt.clientX - rect.left) * scaleX,
-          y: (evt.clientY - rect.top) * scaleY
-        };
-      }
-      drawCanvas.addEventListener("mousedown", function(evt) {
-        drawing = true;
-        const pos = getMousePos(evt);
-        drawCtx.beginPath();
-        drawCtx.moveTo(pos.x, pos.y);
-      });
-      drawCanvas.addEventListener("mousemove", function(evt) {
-        if (!drawing) return;
-        const pos = getMousePos(evt);
-        if (eraserMode) {
-          drawCtx.clearRect(pos.x - brushSize/2, pos.y - brushSize/2, brushSize, brushSize);
-        } else {
-          drawCtx.lineTo(pos.x, pos.y);
-          drawCtx.strokeStyle = currentColor;
-          drawCtx.lineWidth = brushSize;
-          drawCtx.lineCap = "round";
-          drawCtx.stroke();
-        }
-      });
-      drawCanvas.addEventListener("mouseup", function() {
-        drawing = false;
-      });
-      drawCanvas.addEventListener("mouseleave", function() {
-        drawing = false;
-      });
-      document.getElementById("colorPicker").addEventListener("change", function() {
-        currentColor = this.value;
-        eraserMode = false;
-        document.getElementById("eraserBtn").textContent = "Eraser";
-      });
-      document.getElementById("brushSize").addEventListener("input", function() {
-        brushSize = this.value;
-      });
-      document.getElementById("eraserBtn").addEventListener("click", function() {
-        eraserMode = !eraserMode;
-        this.textContent = eraserMode ? "Pencil" : "Eraser";
-      });
-      document.getElementById("clearBtn").addEventListener("click", function() {
-        drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-      });
-      
-      // Display text file content if present.
-      if (textContent) {
-        document.getElementById("textPreview").innerText = textContent;
-      }
-    }
-
-    // Check for URL parameter on page load
-    window.addEventListener('DOMContentLoaded', function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const viewParam = urlParams.get('view');
-      
-      if (viewParam) {
-        // Show loading indicator
-        document.getElementById('loadingIndicator').style.display = 'block';
-        document.getElementById('zipInput').style.display = 'none';
-        
-        // Fetch ZIP file from URL
-        fetch(viewParam)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.arrayBuffer();
-          })
-          .then(arrayBuffer => {
-            document.getElementById('loadingIndicator').style.display = 'none';
-            return processZipFile(arrayBuffer);
-          })
-          .catch(error => {
-            console.error("Error loading ZIP from URL:", error);
-            document.getElementById('loadingIndicator').style.display = 'none';
-            document.getElementById('zipInput').style.display = 'block';
-            document.getElementById('uploadError').textContent = "Error loading ZIP file from URL: " + error.message;
-          });
-      }
-    });
-    
-    // ----- ZIP Extraction and Setup for File Upload -----
-    document.getElementById('zipInput').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      document.getElementById('uploadError').textContent = "";
-      
-      processZipFile(file).catch(function(error) {
-        console.error("Error reading ZIP file:", error);
-        document.getElementById('uploadError').textContent = "Error loading ZIP file: " + error.message;
-      });
-    });
-    
-    // ----- Toggle Answer Key Section -----
-    function toggleAnswer() {
-      const answerSection = document.getElementById('answerSection');
-      const toggleBtn = document.getElementById('toggleAnswerBtn');
-      if (answerSection.style.display === "none" || answerSection.style.display === "") {
-        answerSection.style.display = "block";
-        toggleBtn.textContent = "Hide Answer Key";
-        answerSection.scrollIntoView({ behavior: "smooth" });
-      } else {
-        answerSection.style.display = "none";
-        toggleBtn.textContent = "Show Answer Key";
-      }
-    }
-    
-    // ----- Make the Answer Key Container Draggable and Uniformly Resizable -----
-    (function() {
-      const aContainer = document.getElementById("answerKeyContainer");
-      const aHeader = document.getElementById("answerKeyHeader");
-      const resizeHandle = document.getElementById("answerResizeHandle");
-      let aspectRatio = 1;
-      
-      // Dragging functionality
-      let posX = 0, posY = 0, startX = 0, startY = 0;
-      aHeader.onmousedown = dragMouseDown;
-      function dragMouseDown(e) {
-        e = e || window.event;
-        e.preventDefault();
-        startX = e.clientX;
-        startY = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-      }
-      function elementDrag(e) {
-        e = e || window.event;
-        e.preventDefault();
-        posX = startX - e.clientX;
-        posY = startY - e.clientY;
-        startX = e.clientX;
-        startY = e.clientY;
-        aContainer.style.top = (aContainer.offsetTop - posY) + "px";
-        aContainer.style.left = (aContainer.offsetLeft - posX) + "px";
-      }
-      function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-      }
-      
-      // Resizing functionality with aspect ratio preservation
-      resizeHandle.onmousedown = initResize;
-      function initResize(e) {
-        e.preventDefault();
-        aspectRatio = answerAspectRatio || 1; // Use the stored aspect ratio
-        document.onmousemove = startResize;
-        document.onmouseup = stopResize;
-      }
-      function startResize(e) {
-        const rect = aContainer.getBoundingClientRect();
-        let newWidth = e.clientX - rect.left;
-        let newHeight = newWidth * aspectRatio;
-        
-        // Apply minimum size constraints
-        if (newWidth < 150) {
-          newWidth = 150;
-          newHeight = newWidth * aspectRatio;
-        }
-        
-        aContainer.style.width = newWidth + "px";
-        aContainer.style.height = newHeight + "px";
-      }
-      function stopResize() {
-        document.onmousemove = null;
-        document.onmouseup = null;
-      }
-    })();
-    
-    // ----- Make the Combined Image Container Uniformly Resizable -----
-    (function() {
-      const container = document.getElementById("canvasContainer");
-      const resizeHandle = document.getElementById("canvasResizeHandle");
-      
-      resizeHandle.onmousedown = initResize;
-      function initResize(e) {
-        e.preventDefault();
-        document.onmousemove = startResize;
-        document.onmouseup = stopResize;
-      }
-      function startResize(e) {
-        const rect = container.getBoundingClientRect();
-        let newWidth = e.clientX - rect.left;
-        let newHeight = newWidth * canvasAspectRatio;
-        
-        // Apply minimum size constraints
-        if (newWidth < 300) {
-          newWidth = 300;
-          newHeight = newWidth * canvasAspectRatio;
-        }
-        
-        container.style.width = newWidth + "px";
-        container.style.height = newHeight + "px";
-      }
-      function stopResize() {
-        document.onmousemove = null;
-        document.onmouseup = null;
-      }
-    })();
-    
-    // Handle window resize to recalculate canvas size if needed
-    window.addEventListener('resize', function() {
-      // Optionally recalculate canvas size on window resize
-      // This could be implemented to automatically adjust the canvas size
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
