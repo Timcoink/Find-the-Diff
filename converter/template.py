@@ -1,0 +1,550 @@
+HTML_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find the Difference Web Tool</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #1976D2;
+            --background-color: #f5f5f5;
+            --border-color: #ddd;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .image-upload {
+            text-align: center;
+        }
+
+        .drop-zone {
+            width: 100%;
+            height: 200px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #777;
+            border: 2px dashed var(--primary-color);
+            border-radius: 10px;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone:hover {
+            background-color: rgba(33, 150, 243, 0.05);
+        }
+
+        .drop-zone.drop-zone--over {
+            border-style: solid;
+            background-color: rgba(33, 150, 243, 0.1);
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 1rem;
+            border-radius: 5px;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .settings-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .setting-item label {
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .process-button, .regenerate-button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .process-button:hover, .regenerate-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .process-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .result-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-image {
+            text-align: center;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .result-image img {
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stats {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .download-button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .download-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .upload-section, .result-images {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Find the Difference Web Tool</h1>
+        
+        <div class="upload-section">
+            <div class="image-upload">
+                <h3>Original Image</h3>
+                <div class="drop-zone" id="originalDrop">
+                    <span class="drop-zone__prompt">Drop file here or click to upload</span>
+                    <input type="file" name="original" accept="image/*">
+                </div>
+                <img id="originalPreview" class="preview-image" src="" alt="Original preview">
+            </div>
+
+            <div class="image-upload">
+                <h3>Modified Image</h3>
+                <div class="drop-zone" id="modifiedDrop">
+                    <span class="drop-zone__prompt">Drop file here or click to upload</span>
+                    <input type="file" name="modified" accept="image/*">
+                </div>
+                <img id="modifiedPreview" class="preview-image" src="" alt="Modified preview">
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>Settings</h3>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label for="threshold">Threshold: <span id="thresholdValue">30</span></label>
+                    <input type="range" id="threshold" min="1" max="255" value="30">
+                </div>
+
+                <div class="setting-item">
+                    <label for="minArea">Minimum Area: <span id="minAreaValue">40</span></label>
+                    <input type="range" id="minArea" min="1" max="200" value="40">
+                </div>
+
+                <div class="setting-item">
+                    <label for="dilationIter">Dilation Iterations: <span id="dilationIterValue">2</span></label>
+                    <input type="range" id="dilationIter" min="0" max="10" value="2">
+                </div>
+
+                <div class="setting-item">
+                    <label for="circleThickness">Circle Thickness: <span id="circleThicknessValue">2</span></label>
+                    <input type="range" id="circleThickness" min="1" max="10" value="2">
+                </div>
+
+                <div class="setting-item">
+                    <label for="circleColor">Circle Color:</label>
+                    <input type="color" id="circleColor" value="#FF0000">
+                </div>
+
+                <div class="setting-item">
+                    <label for="overlayColor">Overlay Color:</label>
+                    <input type="color" id="overlayColor" value="#FF0000">
+                </div>
+
+                <div class="setting-item">
+                    <label for="overlayOpacity">Overlay Opacity: <span id="overlayOpacityValue">100</span></label>
+                    <input type="range" id="overlayOpacity" min="0" max="255" value="100">
+                </div>
+
+                <div class="setting-item">
+                    <label for="touchDistance">Touch Distance: <span id="touchDistanceValue">10</span></label>
+                    <input type="range" id="touchDistance" min="1" max="50" value="10">
+                </div>
+
+                <div class="setting-item">
+                    <label for="imageSpacing">Image Spacing: <span id="imageSpacingValue">10</span>px</label>
+                    <input type="range" id="imageSpacing" min="0" max="100" value="10">
+                </div>
+
+                <div class="setting-item">
+                    <label for="separatorColor">Separator Line Color:</label>
+                    <input type="color" id="separatorColor" value="#87CEEB">
+                </div>
+
+                <div class="setting-item">
+                    <label for="separatorThickness">Separator Thickness: <span id="separatorThicknessValue">2</span>px</label>
+                    <input type="range" id="separatorThickness" min="1" max="10" value="2">
+                </div>
+            </div>
+        </div>
+
+        <button id="processButton" class="process-button" disabled>Process Images</button>
+
+        <div id="results" class="results">
+            <div class="result-images">
+                <div class="result-image">
+                    <h3>Combined Result</h3>
+                    <img id="combinedResult" src="" alt="Combined result">
+                    <br>
+                    <button class="download-button" onclick="downloadImage('combinedResult', 'combined.jpg')">Download Combined</button>
+                </div>
+                <div class="result-image">
+                    <h3>Answer Result</h3>
+                    <img id="answerResult" src="" alt="Answer result">
+                    <br>
+                    <button class="download-button" onclick="downloadImage('answerResult', 'answer.jpg')">Download Answer</button>
+                </div>
+            </div>
+            <div class="stats">
+                <p>Differences found: <span id="diffCount">0</span></p>
+                <p>Circles created: <span id="circlesCount">0</span></p>
+            </div>
+            <button class="regenerate-button" onclick="regenerateImages()">Regenerate with Current Settings</button>
+            <button id="downloadZip" class="download-button" onclick="downloadZip()">Download All as ZIP</button>
+        </div>
+    </div>
+
+    <div class="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // Update range input values
+        function updateRangeValue(inputId, valueId, suffix = '') {
+            const input = document.getElementById(inputId);
+            const value = document.getElementById(valueId);
+            value.textContent = input.value + suffix;
+            input.addEventListener('input', () => value.textContent = input.value + suffix);
+        }
+
+        // Initialize range input values
+        updateRangeValue('threshold', 'thresholdValue');
+        updateRangeValue('minArea', 'minAreaValue');
+        updateRangeValue('dilationIter', 'dilationIterValue');
+        updateRangeValue('circleThickness', 'circleThicknessValue');
+        updateRangeValue('overlayOpacity', 'overlayOpacityValue');
+        updateRangeValue('touchDistance', 'touchDistanceValue');
+        updateRangeValue('imageSpacing', 'imageSpacingValue', 'px');
+        updateRangeValue('separatorThickness', 'separatorThicknessValue', 'px');
+
+        // Show/hide loading spinner
+        function toggleLoading(show) {
+            document.querySelector('.loading').style.display = show ? 'flex' : 'none';
+        }
+
+        // Handle file drops
+        document.querySelectorAll('.drop-zone').forEach(dropZone => {
+            const input = dropZone.querySelector('input');
+            const preview = document.getElementById(dropZone.id.replace('Drop', 'Preview'));
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropZone.classList.add('drop-zone--over');
+            }
+
+            function unhighlight(e) {
+                dropZone.classList.remove('drop-zone--over');
+            }
+
+            dropZone.addEventListener('drop', handleDrop, false);
+            input.addEventListener('change', handleChange, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+                handleFile(file);
+            }
+
+            function handleChange(e) {
+                const file = e.target.files[0];
+                handleFile(file);
+            }
+
+            function handleFile(file) {
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        checkProcessButton();
+                    }
+                }
+            }
+        });
+
+        // Check if both images are loaded
+        function checkProcessButton() {
+            const originalPreview = document.getElementById('originalPreview');
+            const modifiedPreview = document.getElementById('modifiedPreview');
+            const processButton = document.getElementById('processButton');
+            
+            processButton.disabled = !(originalPreview.src && modifiedPreview.src);
+        }
+
+        // Get current settings
+        function getSettings() {
+            return {
+                threshold: parseInt(document.getElementById('threshold').value),
+                minArea: parseInt(document.getElementById('minArea').value),
+                dilationIter: parseInt(document.getElementById('dilationIter').value),
+                circleThickness: parseInt(document.getElementById('circleThickness').value),
+                circleColor: document.getElementById('circleColor').value,
+                overlayColor: document.getElementById('overlayColor').value,
+                overlayOpacity: parseInt(document.getElementById('overlayOpacity').value),
+                touchDistance: parseInt(document.getElementById('touchDistance').value),
+                imageSpacing: parseInt(document.getElementById('imageSpacing').value),
+                separatorColor: document.getElementById('separatorColor').value,
+                separatorThickness: parseInt(document.getElementById('separatorThickness').value)
+            };
+        }
+
+        // Process images
+        async function processImages() {
+            toggleLoading(true);
+
+            const settings = getSettings();
+            const formData = new FormData();
+            formData.append('original', document.getElementById('originalPreview').src);
+            formData.append('modified', document.getElementById('modifiedPreview').src);
+            formData.append('settings', JSON.stringify(settings));
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('combinedResult').src = result.combined_image;
+                    document.getElementById('answerResult').src = result.answer_image;
+                    document.getElementById('diffCount').textContent = result.diff_count;
+                    document.getElementById('circlesCount').textContent = result.circles_created;
+                    document.getElementById('results').style.display = 'block';
+                } else {
+                    alert('Error processing images');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error processing images');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Regenerate images with current settings
+        function regenerateImages() {
+            processImages();
+        }
+
+        document.getElementById('processButton').addEventListener('click', processImages);
+
+        // Download functions
+        function downloadImage(imageId, filename) {
+            const image = document.getElementById(imageId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = image.src;
+            link.click();
+        }
+
+        async function downloadZip() {
+            toggleLoading(true);
+            try {
+                const response = await fetch('/download-zip', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        combined_image: document.getElementById('combinedResult').src,
+                        answer_image: document.getElementById('answerResult').src
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'results.zip';
+                    link.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('Error creating ZIP file');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating ZIP file');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+    </script>
+</body>
+</html>
+'''
