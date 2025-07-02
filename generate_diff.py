@@ -5,56 +5,8 @@ import argparse
 import zipfile
 import subprocess
 import importlib
-
-# Global flag: if set (by the -w flag), skip dependency instructions.
-SKIP_DEPENDENCY = False
-if '-w' in sys.argv:
-    SKIP_DEPENDENCY = True
-    sys.argv.remove('-w')
-
-def check_dependency_manual(module_name, pip_module, manual_cmd):
-    """
-    Try to import a module by name. If the import fails and the user hasn't opted
-    to skip auto-installation, prompt them if they'd like to see the manual-install
-    command. If they answer 'y', print the command and exit; if 'n', continue with
-    a warning.
-    """
-    try:
-        importlib.import_module(module_name)
-        return True
-    except ImportError:
-        if SKIP_DEPENDENCY:
-            print(f"Warning: {module_name} is not installed. Skipping dependency instructions as per user request. (You may encounter errors later.)")
-            return False
-        else:
-            prompt = (f"The '{pip_module}' library (module '{module_name}') is either not installed or missing required libraries.\n"
-                      f"For example, you might see a 'libGL.so.1' error. Would you like to see the command to install it manually? (y/n): ")
-            choice = input(prompt).strip().lower()
-            if choice in ['y', 'yes']:
-                print("\nPlease run the following command in your terminal to install the necessary dependency:")
-                print(manual_cmd)
-                sys.exit(1)
-            else:
-                print(f"Continuing without installing {pip_module}. You may experience errors later.")
-                return False
-
-# Check dependencies one by one.
-if not check_dependency_manual("cv2", "opencv-python", "sudo apt-get update && sudo apt-get install libgl1"):  # adjust as needed
-    pass
-if not check_dependency_manual("numpy", "numpy", "pip install numpy"):
-    pass
-
-# Now attempt to import our dependencies.
-try:
-    import cv2
-except ImportError:
-    print("Error: cv2 is still not importable. Exiting.")
-    sys.exit(1)
-try:
-    import numpy as np
-except ImportError:
-    print("Error: numpy is still not importable. Exiting.")
-    sys.exit(1)
+import cv2
+import numpy as np
 
 def group_touching_contours(contours, touch_distance=10):
     """
