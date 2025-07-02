@@ -8,7 +8,6 @@ body {
   overflow-x: auto;
 }
 
-/* Top Banner Styles */
 .top-banner {
   display: flex;
   justify-content: space-between;
@@ -32,7 +31,6 @@ body {
   text-decoration: underline;
 }
 
-/* Translator Container */
 #translate-container {
   margin: 10px auto;
   max-width: 900px;
@@ -94,7 +92,6 @@ footer a {
   pointer-events: none;
 }
 
-/* Answer Key Container (moveable and uniformly resizable) */
 #answerKeyContainer {
   position: absolute;
   top: 80px;
@@ -126,9 +123,9 @@ footer a {
   height: auto;
   display: block;
   margin: 5px 0;
+  object-fit: contain;
 }
 
-/* Custom resize handle for answer key */
 #answerResizeHandle {
   width: 15px;
   height: 15px;
@@ -163,7 +160,6 @@ footer a {
   word-wrap: break-word;
 }
 
-/* Canvas Container for Drawing (Combined Image Editor) */
 #canvasContainer {
   position: relative;
   margin: 0 auto 10px;
@@ -174,7 +170,6 @@ footer a {
   min-height: 200px;
 }
 
-/* A custom resize handle for the canvas container */
 #canvasResizeHandle {
   width: 20px;
   height: 20px;
@@ -187,7 +182,6 @@ footer a {
   border: 1px solid #fff;
 }
 
-/* Both canvas layers will fill the container */
 #bgCanvas, #drawCanvas {
   position: absolute;
   top: 0;
@@ -195,9 +189,9 @@ footer a {
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: contain;
 }
 
-/* Drawing Controls - Fixed positioning */
 #editorControls {
   margin: 20px auto;
   padding: 15px;
@@ -215,14 +209,12 @@ footer a {
   z-index: 50;
 }
 
-/* Always bottom by default */
 #editorControls.bottom-position {
   position: relative;
   margin-top: 20px;
   margin-bottom: 20px;
 }
 
-/* Top sticky position option */
 #editorControls.top-position {
   position: sticky;
   top: 70px;
@@ -244,7 +236,6 @@ footer a {
   gap: 5px;
 }
 
-/* Settings Panel */
 #settingsPanel {
   position: fixed;
   top: 50%;
@@ -277,7 +268,6 @@ footer a {
   min-width: 120px;
 }
 
-/* Loading indicator */
 #loadingIndicator {
   display: none;
   margin: 20px 0;
@@ -285,7 +275,6 @@ footer a {
   color: #0073e6;
 }
 
-/* Full screen mode styles */
 .fullscreen-mode {
   position: fixed !important;
   top: 0 !important;
@@ -296,9 +285,21 @@ footer a {
   background: #000 !important;
   margin: 0 !important;
   border: none !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  overflow: hidden !important;
 }
 
-/* Fullscreen button positioning - FIXED */
+.fullscreen-mode #bgCanvas,
+.fullscreen-mode #drawCanvas {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
 #fullscreenBtn {
   position: absolute;
   top: 10px;
@@ -317,7 +318,6 @@ footer a {
   background: rgba(0, 91, 181, 0.9);
 }
 
-/* Settings button */
 #settingsBtn {
   background: #666;
   font-size: 12px;
@@ -332,7 +332,6 @@ footer a {
   background: #555;
 }
 
-/* Overlay for settings */
 #settingsOverlay {
   position: fixed;
   top: 0;
